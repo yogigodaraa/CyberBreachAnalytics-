@@ -14,7 +14,8 @@ handle_error() {
 trap 'handle_error $LINENO' ERR
 
 # Redirect Git command output to git2.log
-exec > git2.log 2>&1
+git_output=$(mktemp)
+exec 3>&1 4>&2 >"$git_output" 2>&1
 
 # Check if file argument is provided
 if [ -z "$1" ]; then
@@ -30,23 +31,23 @@ fi
 
 # Initialize Git repository
 if ! git init; then
-  echo "Failed to initialize Git repository." >&2
+  echo "Failed to initialize Git repository." >&4
   exit 1
 fi
 
 if ! git add .; then
-  echo "Failed to add files to Git repository." >&2
+  echo "Failed to add files to Git repository." >&4
   exit 1
 fi
 
 if ! git commit -m "Initial commit"; then
-  echo "Failed to commit files to Git repository." >&2
+  echo "Failed to commit files to Git repository." >&4
   exit 1
 fi
 
 # Create a new branch for this run
 if ! git checkout -b "$(date +%Y%m%d%H%M%S)"; then
-  echo "Failed to create a new Git branch." >&2
+  echo "Failed to create a new Git branch." >&4
   exit 1
 fi
 
@@ -92,7 +93,7 @@ mad=$(echo "$incidents_per_month" | awk -v median="$median" '{
       }
     }')
 
-# Print the results
+# Print the results to stdout
 echo "Median: $median"
 echo "MAD: $mad"
 echo "Month     Incidents"
@@ -104,12 +105,21 @@ echo "$incidents_per_month" | awk -v median="$median" -v mad="$mad" -v months="$
 
 # Add all new changes to the Git repository and commit them
 if ! git add -A; then
-  echo "Failed to add changes to Git repository." >&2
+  echo "Failed to add changes to Git repository." >&4
   exit 1
 fi
 
 if ! git commit -m "Added calculations for $(date +%Y%m%d%H%M%S)"; then
-  echo "Failed to commit changes to Git repository." >&2
+  echo "Failed to commit changes to Git repository." >&4
   exit 1
 fi
+
+# Restore stdout and stderr
+exec 1>&3 2>&4
+
+# Print Git output to stderr
+cat "$git_output" >&2
+
+# Clean up temporary files
+rm "$git_output"
 
