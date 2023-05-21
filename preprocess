@@ -19,7 +19,7 @@ if [ ! -f "$input_file" ]; then
 fi
 
 # Initialize Git repository
-git init 2>> git.log
+git init &>> git.log
 git add . >> git.log
 git commit -m "Initial commit" >> git.log
 
