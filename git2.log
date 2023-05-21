@@ -1,1 +1,20 @@
 Reinitialized existing Git repository in /home/kali/Documents/opensource2/.git/
+[20230521000629 591110b] Initial commit
+ 1 file changed, 1 insertion(+), 20 deletions(-)
+ rewrite git2.log (82%)
+Switched to a new branch '20230521000643'
+Median: 93
+MAD: 11.5
+Month     Incidents
+Jan      100
+Feb       93
+Mar      102
+Apr       71 --
+May       93
+Jun       77 --
+Jul       72 --
+Aug       75 --
+Sep      107 ++
+Oct       95
+Nov       93
+Dec       77 --
