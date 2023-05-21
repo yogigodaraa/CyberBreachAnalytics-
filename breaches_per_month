@@ -4,18 +4,6 @@
 # Name: Yogender
 # Student ID: 23871801
 
-# Function to handle errors
-handle_error() {
-    echo "Error on line $1" >&2
-    exit 1
-}
-
-# Error handling for the script
-trap 'handle_error $LINENO' ERR
-
-# Redirect Git command output to git2.log
-exec 3>&1 > git2.log 2>&3
-
 # Check if file argument is provided
 if [ -z "$1" ]; then
   echo "Please provide the data file as an argument." >&2
@@ -29,26 +17,12 @@ if [ ! -f "$1" ]; then
 fi
 
 # Initialize Git repository
-if ! git init; then
-  echo "Failed to initialize Git repository." >&3
-  exit 1
-fi
-
-if ! git add .; then
-  echo "Failed to add files to Git repository." >&3
-  exit 1
-fi
-
-if ! git commit -m "Initial commit"; then
-  echo "Failed to commit files to Git repository." >&3
-  exit 1
-fi
+git init
+git add .
+git commit -m "Initial commit"
 
 # Create a new branch for this run
-if ! git checkout -b "$(date +%Y%m%d%H%M%S)"; then
-  echo "Failed to create a new Git branch." >&3
-  exit 1
-fi
+git checkout -b "$(date +%Y%m%d%H%M%S)"
 
 # Define month names
 month_names=("Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec")
@@ -62,7 +36,7 @@ incidents_per_month=$(tail -n +2 "$1" | \
       count[$6]++
     }
     END{
-      for (month in count)
+      for (month in count) 
         print month, count[month]
     }' | sort -k1,1n)
 
@@ -73,7 +47,7 @@ median=$(echo "$incidents_per_month" | awk '{
     END{
       if (NR > 0) {
         n = asort(values)
-        if (n % 2 == 0)
+        if (n % 2 == 0) 
           print (values[n/2] + values[n/2 + 1]) / 2
         else print values[(n + 1) / 2]
       }
@@ -86,33 +60,23 @@ mad=$(echo "$incidents_per_month" | awk -v median="$median" '{
     END{
       if (NR > 0) {
         n = asort(diff)
-        if (n % 2 == 0)
+        if (n % 2 == 0) 
           print (diff[n/2] + diff[n/2 + 1]) / 2
         else print diff[(n + 1) / 2]
       }
     }')
 
-# Print the results to stdout
+# Print the results
 echo "Median: $median"
 echo "MAD: $mad"
 echo "Month     Incidents"
 echo "$incidents_per_month" | awk -v median="$median" -v mad="$mad" -v months="${month_names[*]}" '{
       split(months, month_array, " ")
-      flag = ($2 < median - mad) ? " --" : ($2 > median + mad) ? " ++" : ""
+      flag = ($2 < median-mad) ? " --" : ($2 > median+mad) ? " ++" : ""
       printf "%s %8d%s\n", month_array[$1], $2, flag
     }'
 
 # Add all new changes to the Git repository and commit them
-if ! git add -A; then
-  echo "Failed to add changes to Git repository." >&3
-  exit 1
-fi
-
-if ! git commit -m "Added calculations for $(date +%Y%m%d%H%M%S)"; then
-  echo "Failed to commit changes to Git repository." >&3
-  exit 1
-fi
-
-# Close file descriptor 3
-exec 3>&-
+git add -A
+git commit -m "Added calculations for $(date +%Y%m%d%H%M%S)"
 
