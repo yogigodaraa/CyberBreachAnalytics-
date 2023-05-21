@@ -9,3 +9,9 @@ hint: 'development'. The just-created branch can be renamed via this command:
 hint: 
 hint: 	git branch -m <name>
 Initialized empty Git repository in /home/kali/Documents/opensource2/.git/
+[master (root-commit) f7cdc50] Initial commit
+ 3 files changed, 1148 insertions(+)
+ create mode 100644 Cyber_Security_Breaches_noym.tsv
+ create mode 100644 git.log
+ create mode 100755 preprocess
+Switched to a new branch '20230520234650'
