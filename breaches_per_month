@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 
+#breaches_per_month
+
 # Name: Yogender
 # Student ID: 23871801
+
+#This program named breaches_per_month will calculate the median and mad for breaches across 12 months to see "Is the nature of the breaches changing over the time"
+
 # Check if file argument is provided
 if [ -z "$1" ]; then
   echo "Please provide the data file as an argument." >&2
@@ -13,14 +18,6 @@ if [ ! -f "$1" ]; then
   echo "File not found." >&2
   exit 1
 fi
-
-# Initialize Git repository
-git init
-git add .
-git commit -m "Initial commit"
-
-# Create a new branch for this run
-git checkout -b "$(date +%Y%m%d%H%M%S)"
 
 # Define month names
 month_names=("Jan" "Feb" "Mar" "Apr" "May" "Jun" "Jul" "Aug" "Sep" "Oct" "Nov" "Dec")
@@ -38,7 +35,7 @@ incidents_per_month=$(tail -n +2 "$1" | \
         print month, count[month]
     }' | sort -k1,1n)
 
-# Calculate median and MAD
+# Calculate median and MAD accordingly
 median=$(echo "$incidents_per_month" | awk '{
       values[NR] = $2
     }
@@ -64,7 +61,7 @@ mad=$(echo "$incidents_per_month" | awk -v median="$median" '{
       }
     }')
 
-# Print the results
+# Print the median and MAD and return the table of Months and Incidents respectively
 echo "Median: $median"
 echo "MAD: $mad"
 echo "Month     Incidents"
@@ -73,9 +70,4 @@ echo "$incidents_per_month" | awk -v median="$median" -v mad="$mad" -v months="$
       flag = ($2 < median-mad) ? " --" : ($2 > median+mad) ? " ++" : ""
       printf "%s %8d%s\n", month_array[$1], $2, flag
     }'
-
-# Add all new changes to the Git repository and commit them
-git add -A
-git commit -m "Added calculations for $(date +%Y%m%d%H%M%S)"
-
 
