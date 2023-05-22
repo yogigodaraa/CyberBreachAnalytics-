@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# Student Details
 # Name: Yogender
 # Student ID: 23871801
+
+#This program named preprocess will do usual antibugging and cleaning of data file and add new columns Month and Year which we can use to calculate median and mad
 
 # Check that both input and output file names are provided
 if [ "$#" -ne 1 ]; then
@@ -17,14 +18,6 @@ if [ ! -f "$input_file" ]; then
   echo "Error: Input file not found" >&2
   exit 1
 fi
-
-# Initialize Git repository
-git init &>> git.log
-git add . >> git.log
-git commit -m "Initial commit" >> git.log
-
-# Create a new branch for this run
-git checkout -b "$(date +%Y%m%d%H%M%S)" >> git.log
 
 # Read the header line from the input file
 header=$(head -n 1 "$input_file")
@@ -84,7 +77,5 @@ sed 1d "$input_file" | while IFS=$'\t' read -r "${headers[@]}" extra_header; do
   printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\n" "$Name_of_Covered_Entity" "$State" "$Individuals_Affected" "$Date_of_Breach" "$type_of_breach" "$month" "$year"
 done
 
-# Add all new changes to the Git repository and commit them
-git add -A >> git.log
-git commit -m "Added calculations for $(date +%Y%m%d%H%M%S)" >> git.log
+
 

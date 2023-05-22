@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-# Student Details
 # Name: Yogender
 # Student ID: 23871801
-
 # Check if file argument is provided
 if [ -z "$1" ]; then
   echo "Please provide the data file as an argument." >&2
@@ -79,4 +77,5 @@ echo "$incidents_per_month" | awk -v median="$median" -v mad="$mad" -v months="$
 # Add all new changes to the Git repository and commit them
 git add -A
 git commit -m "Added calculations for $(date +%Y%m%d%H%M%S)"
+
 
