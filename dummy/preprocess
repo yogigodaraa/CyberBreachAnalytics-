@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+
+# Name: Yogender
+# Student ID: 23871801
+
+#This program named preprocess will do usual antibugging and cleaning of data file and add new columns Month and Year which we can use to calculate median and mad
+
+# Check that both input and output file names are provided
+if [ "$#" -ne 1 ]; then
+  echo "Error: Input file name is required" >&2
+  exit 1
+fi
+
+input_file="$1"
+
+# Check that the input file exists
+if [ ! -f "$input_file" ]; then
+  echo "Error: Input file not found" >&2
+  exit 1
+fi
+
+# Read the header line from the input file
+header=$(head -n 1 "$input_file")
+
+# Split the header line into an array
+IFS=$'\t' read -r -a headers <<< "$header"
+
+# Remove "Location_of_Breached_Information" and "Summary" columns from headers
+headers=("Name_of_Covered_Entity" "State" "Individuals_Affected" "Date_of_Breach" "Type_of_Breach")
+
+# Add the month and year headers
+headers+=("Month" "Year")
+
+# Print the headers
+printf "%s\t" "${headers[@]}"
+echo ""
+
+# Read the data lines and add the month and year columns
+sed 1d "$input_file" | while IFS=$'\t' read -r "${headers[@]}" extra_header; do
+  # Skip lines with additional headers
+  if [ -n "$extra_header" ]; then
+    echo "Skipping line with additional header: $extra_header" >&2
+    continue
+  fi
+
+  # Check the field count
+  if [ "${#Date_of_Breach}" -lt 4 ]; then
+    echo "Skipping line with erroneous data: $Name_of_Covered_Entity" >&2
+    continue
+  fi
+
+  # Extract the month and year from the date field
+  if [[ "$Date_of_Breach" == *-* ]]; then
+    # Date range
+    start_date=$(echo "$Date_of_Breach" | cut -d'-' -f1)
+    month=$(date -d "$start_date" +"%-m")
+    year=$(date -d "$start_date" +"%Y")
+  else
+    # Single date
+    month=$(date -d "$Date_of_Breach" +"%-m")
+    year=$(date -d "$Date_of_Breach" +"%Y")
+  fi
+
+  # Check if the year is a two-digit number
+  if [ "${#year}" -eq 2 ]; then
+    if [ "$year" -le 23 ]; then
+      year="20$year"
+    else
+      year="19$year"
+    fi
+  fi
+
+  # Remove everything after the first comma or slash in Type_of_Breach field
+  type_of_breach="${Type_of_Breach%%[,/]*}"
+
+  # Print the line with the new fields
+  printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\n" "$Name_of_Covered_Entity" "$State" "$Individuals_Affected" "$Date_of_Breach" "$type_of_breach" "$month" "$year"
+done
+
+
+
